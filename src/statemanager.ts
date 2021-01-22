@@ -1,5 +1,7 @@
-import { BehaviorSubject, Observable, OperatorFunction, timer, Subject, merge, of } from "rxjs";
-import { scan, filter, delay, shareReplay, tap, takeUntil, exhaustMap } from "rxjs/operators"
+import { isEqual, pick } from "lodash-es";
+import { BehaviorSubject, Observable, OperatorFunction, timer, Subject, merge, of, pipe } from "rxjs";
+import { scan, filter, delay, shareReplay, tap, takeUntil, exhaustMap, map, distinctUntilChanged } from "rxjs/operators"
+import { ExtractionResult, ExtractionSelector, FULL_STATE } from "./statemanager.interface";
 
 export interface IUserState{
     user: string,
@@ -16,6 +18,36 @@ const DEFAULT_USER_STATE: IUserState = {
 const DEFAULT_STATE_DELAY = 2000;
 
 const persistanceObservable = of({user: 'Bart Simpson'} as IUserState).pipe(delay(4000));
+
+export const referenceEqualer = <T>(first: T, second: T): boolean => first === second;
+
+//todo: make auto-transformer to curried function
+//can be inspired by https://www.freecodecamp.org/news/typescript-curry-ramda-types-f747e99744ab/
+export const referenceEqualerCurried = <T>(first: T) => (second: T): boolean => referenceEqualer(first, second);
+
+export const non = <T extends ((...args: Array<unknown>) => boolean)>(fun: T) => (...params: Parameters<T>): boolean => !fun(...params);
+
+/**
+ * Extract from input object full\partial\only one prop
+ * @param request Can be ALL, Array of properties, one property name, Works only with flat objects
+ */
+export const partialExtractor = <T, K extends ExtractionSelector<T>>(request: K) =>
+    (state: T) : ExtractionResult<T, K> =>
+        (request === FULL_STATE
+            ? state
+            : Array.isArray(request)
+                ? pick(state, request)
+                : state[request as keyof T]) as ExtractionResult<T, K>;
+
+/**
+ * provide only changed partial original state
+ * @param request Can be ALL, Array of properties, one property name
+ */
+export const observableSelector = <T, K extends ExtractionSelector<T>>(request: K): OperatorFunction<T, ExtractionResult<T, K>> =>
+    pipe(
+        map(partialExtractor(request)),
+        distinctUntilChanged(Array.isArray(request) ? isEqual : referenceEqualer),
+    );
 
 export class StateService {
 
