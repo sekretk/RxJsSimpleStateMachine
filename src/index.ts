@@ -1,15 +1,33 @@
 import { StateService } from "./statemanager";
 import { of } from "rxjs";
 import { delay, map } from "rxjs/operators";
+import { UserStateService } from "./userstatemanager";
+import { FULL_STATE } from "./interfaces";
 
-const stateMachine = new StateService();
+const userStateObserver = new UserStateService();
 
 const startTime = Date.now();
 
 const consoleHandler = (prefix: any) => (value: any) => console.log(`At ${Date.now() - startTime}: ${prefix} ${JSON.stringify(value)}`);
 
-stateMachine.stateObservable().subscribe(consoleHandler('Consumer, result state: '))
+//FULL STATE subscriber
+userStateObserver
+    .stateObservable(FULL_STATE)
+    .subscribe(consoleHandler('Consumer, result FULL state: '))
 
-stateMachine.statePartialObservable(map(state => state.user)).subscribe(consoleHandler('User consumer, result state: '))
+//single prop state subscriber
+userStateObserver
+    .stateObservable('mode')
+    .subscribe(consoleHandler('Consumer, result ONE PROP state: '))    
 
-of(true).pipe(delay(5000)).subscribe(() => stateMachine.changeState({mode: 2}))
+//multiple props state subscriber
+userStateObserver
+    .stateObservable(['user', 'mode'])
+    .subscribe(consoleHandler('Consumer, result MULTIPLE PROP state: '))    
+
+
+userStateObserver.save('mode', 1);
+userStateObserver.save('mode', 1);
+userStateObserver.save('mode', 3);
+
+of(true).pipe(delay(5000)).subscribe(() => userStateObserver.save('mode', 2))

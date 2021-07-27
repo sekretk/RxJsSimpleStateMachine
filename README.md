@@ -1,1 +1,1 @@
-# RxJsSimpleStateMachine
+# automapper

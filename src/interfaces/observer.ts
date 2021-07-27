@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 /**
  * type to get type of property type of argument
  */
@@ -29,3 +31,19 @@ export type ExtractionResult<T, K extends ExtractionSelector<T>> =
     K extends FullObjectLiteral ? T :
         K extends Array<keyof T> ? Pick<T, Extract<keyof T, LiteralType<K>>> :
             ObjectPropertyType<T, Exclude<K, FullObjectLiteral | Array<keyof T>>>;
+
+export interface IStateService<T> {
+    changeState: (partialState: Partial<T> ) => void,
+    stateObservable: <K extends ExtractionSelector<T>>(selector: K) => Observable<ExtractionResult<T, K>>;
+    stop: () => void;
+}
+
+export interface IStateObserver<T> {
+    stateObservable<S extends ExtractionSelector<T>>(prop: S): Observable<ExtractionResult<T, S>>;
+}
+ 
+export interface IStateManager<T> extends IStateObserver<T> {
+    save<K extends keyof T>(key: K, value: T[K]): void;
+}
+ 
+export type IStateManagerService<T> = IStateManager<T>;

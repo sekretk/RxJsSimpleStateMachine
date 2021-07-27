@@ -1,26 +1,34 @@
 {
-  "name": "ts_rxjs",
+  "name": "statemanger",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --mode development"
+    "start": "ts-node src/index.ts",
+    "build": "tsc -p .",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sekretk/automapper.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@types/lodash-es": "^4.17.4",
-    "lodash-es": "^4.17.20",
-    "rxjs": "~6.5.5",
-    "ts-loader": "~7.0.0",
-    "typescript": "~3.8.3",
-    "webpack": "~4.42.1",
-    "webpack-dev-server": "~3.10.3"
+  "bugs": {
+    "url": "https://github.com/sekretk/automapper/issues"
   },
+  "homepage": "https://github.com/sekretk/automapper#readme",
   "devDependencies": {
-    "rxjs-marbles": "~6.0.0",
-    "webpack-cli": "~3.3.11"
+    "@types/jest": "^26.0.24",
+    "@types/lodash": "^4.14.171",
+    "@types/node": "^16.4.3",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.4",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "rxjs": "^7.2.0"
   }
 }
